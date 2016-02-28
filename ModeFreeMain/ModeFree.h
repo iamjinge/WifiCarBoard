@@ -21,29 +21,29 @@ void modeLoop() {
   bool mid = !digitalRead(detectMid);
   bool left = !digitalRead(detectLeft);
   bool right = !digitalRead(detectRight);
-  if (mid) {
+  if (mid) {                        //前方检测到障碍物
     Motion::backward(backwardPWM, 500, true);
     //int randomAngle=random()
     Motion::turnLeft(turnLeftPWM, 1500, true);
   }
-  else if (!left && !right) {
+  else if (!left && !right) {      //全部无检测到障碍物
     
     Motion::forward(forwardPWM);
     //    Motion::forward(forwardPWM,1000);
 //    Serial.println("1");
   }
-  else if (left && right) {
+  else if (left && right) {        //左右传感器均检测到障碍物
     Motion::backward(backwardPWM, 500, true);
     //int randomAngle=random()
     Motion::turnLeft(turnLeftPWM, 1500, true);
 //    Serial.println("2");
   }
-  else if (left) {
+  else if (left) {                //仅左边检测到障碍物
     Motion::backward(backwardPWM, 200);
     Motion::turnRight(turnRightPWM, 1000, true);
 //    Serial.println("3");
   }
-  else {
+  else {                          //仅邮编检测到障碍物
     Motion::backward(backwardPWM, 200);
     Motion::turnLeft(turnLeftPWM, 1000, true);
 //    Serial.println("4");
