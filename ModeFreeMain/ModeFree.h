@@ -11,6 +11,9 @@ int backwardPWM = 150;
 int turnLeftPWM = 150;
 int turnRightPWM = 150;
 
+
+unsigned long keepTime = 0;
+
 void modeSetup() {
   pinMode(detectLeft, INPUT);
   pinMode(detectRight, INPUT);
@@ -24,29 +27,34 @@ void modeLoop() {
   if (mid) {                        //前方检测到障碍物
     Motion::backward(backwardPWM, 500, true);
     //int randomAngle=random()
-    Motion::turnLeft(turnLeftPWM, 1500, true);
+    Motion::turnLeft(turnLeftPWM);
+    keepTime=millis()+1500;         //左转需要持续的时间为1500m，下同
   }
   else if (!left && !right) {      //全部无检测到障碍物
-    
-    Motion::forward(forwardPWM);
-    //    Motion::forward(forwardPWM,1000);
-//    Serial.println("1");
+    if (millis() >= keepTime) {
+      Motion::forward(forwardPWM);
+      //    Motion::forward(forwardPWM,1000);
+      //    Serial.println("1");
+    }
   }
   else if (left && right) {        //左右传感器均检测到障碍物
     Motion::backward(backwardPWM, 500, true);
     //int randomAngle=random()
-    Motion::turnLeft(turnLeftPWM, 1500, true);
-//    Serial.println("2");
+    Motion::turnLeft(turnLeftPWM);
+    keepTime=millis()+1500;         //左转需要持续的时间为1500m，下同
+    //    Serial.println("2");
   }
   else if (left) {                //仅左边检测到障碍物
     Motion::backward(backwardPWM, 200);
-    Motion::turnRight(turnRightPWM, 1000, true);
-//    Serial.println("3");
+    Motion::turnRight(turnRightPWM);
+    keepTime=millis()+1000;         //左转需要持续的时间为1000m，下同
+    //    Serial.println("3");
   }
   else {                          //仅邮编检测到障碍物
     Motion::backward(backwardPWM, 200);
-    Motion::turnLeft(turnLeftPWM, 1000, true);
-//    Serial.println("4");
+    Motion::turnLeft(turnLeftPWM);
+    keepTime=millis()+1000;         //左转需要持续的时间为1000m
+    //    Serial.println("4");
   }
   //  Serial.print(left);
   //  Serial.print(' ');
