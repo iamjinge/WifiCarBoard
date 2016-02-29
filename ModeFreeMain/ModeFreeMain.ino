@@ -5,7 +5,7 @@ int mode = 1;    //避障模式
 void setup() {
   // put your setup code here, to run once:
   //  Serial3.begin(9600); //Wifi串口
-  Serial.begin(9600);
+  Serial.begin(9600);    //调试用串口
   pinMode(switchPin, INPUT_PULLUP);
   Motion::motionSetup();
   ModeFree::modeSetup();
