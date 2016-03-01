@@ -29,23 +29,53 @@ void motionStop() {
   analogWrite(R_Pos, 0);
   analogWrite(R_Neg, 0);
 }
-void turnLeft(int pwm, int mtime = 0, bool needStop = false) {
+void turnLeft(int pwm, int mtime = 0, bool needStop = false, int mode = 0) {
   pwm = constrain(pwm, 0, 255);
-  analogWrite(L_Pos, 0);
-  analogWrite(L_Neg, 0);
-  analogWrite(R_Pos, pwm);
-  analogWrite(R_Neg, 0);
+  switch (mode) {
+    case 1:
+      analogWrite(L_Pos, 0);
+      analogWrite(L_Neg, pwm);
+      analogWrite(R_Pos, 0);
+      analogWrite(R_Neg, 0);
+      break;
+    case 2:
+      analogWrite(L_Pos, 0);
+      analogWrite(L_Neg, pwm);
+      analogWrite(R_Pos, pwm);
+      analogWrite(R_Neg, 0);
+      break;
+    default:
+      analogWrite(L_Pos, 0);
+      analogWrite(L_Neg, 0);
+      analogWrite(R_Pos, pwm);
+      analogWrite(R_Neg, 0);
+  }
   delay(mtime);
   if (needStop) {
     motionStop();
   }
 }
-void turnRight(int pwm, int mtime = 0, bool needStop = false) {
+void turnRight(int pwm, int mtime = 0, bool needStop = false, int mode = 0) {
   pwm = constrain(pwm, 0, 255);
-  analogWrite(L_Pos, pwm);
-  analogWrite(L_Neg, 0);
-  analogWrite(R_Pos, 0);
-  analogWrite(R_Neg, 0);
+  switch (mode) {
+    case 1:
+      analogWrite(L_Pos, 0);
+      analogWrite(L_Neg, 0);
+      analogWrite(R_Pos, 0);
+      analogWrite(R_Neg, pwm);
+      break;
+    case 2:
+      analogWrite(L_Pos, pwm);
+      analogWrite(L_Neg, 0);
+      analogWrite(R_Pos, 0);
+      analogWrite(R_Neg, pwm);
+      break;
+    default:
+      analogWrite(L_Pos, pwm);
+      analogWrite(L_Neg, 0);
+      analogWrite(R_Pos, 0);
+      analogWrite(R_Neg, 0);
+  }
   delay(mtime);
   if (needStop) {
     motionStop();
