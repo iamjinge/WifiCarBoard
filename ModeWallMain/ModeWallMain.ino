@@ -8,6 +8,7 @@ void setup() {
   Motion::motionSetup();
   ModeWall::modeSetup();
   Gyroscope::gyroscopeSetup();
+  Ultrasonic::ultrasonicSetup();
 }
 
 void loop() {

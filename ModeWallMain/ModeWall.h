@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include"Motion.h"
 #include "Gyroscope.h"
+#include "Ultrasonic.h"
 
 namespace ModeWall {
 int detectLeft = 22;    //左侧红外避障模块检测
@@ -22,6 +23,18 @@ bool mid = !digitalRead(detectMid);
 bool left = !digitalRead(detectLeft);
 bool right = !digitalRead(detectRight);
 
+float leftDistance0 = 0;
+float rightDistance0 = 0;
+float leftDistance1 = 0;
+float rightDistance1 = 0;
+
+int leftPWM = 150;
+int rightPWM = 150;
+int deltaPWM = 0;
+
+int PIDInterval = 200; //ms
+const float KP = 2, TD = 1, TI = 10;
+
 void modeSetup() {
   pinMode(detectLeft, INPUT);
   pinMode(detectRight, INPUT);
@@ -35,15 +48,27 @@ void modeLoop() {
   switch (stateFlag) {
     case 0000:                          //丢失目标or初始
       Motion::forward(forwardPWM);
+      leftDistance0 = Ultrasonic::getDistance(0);
+      if (leftDistance0 > 0 && leftDistance0 < 300) {
+        stateFlag = 0100;
+        break;
+      }
+      else {
+        rightDistance0 = Ultrasonic::getDistance(1);
+        if (rightDistance0 > 0 && rightDistance0 < 300) {
+          stateFlag = 1100;
+          break;
+        }
+      }
       if (!(mid || left || right)) {
         break;
       }
       else if (right) {
-        stateFlag = 1100;    //左贴墙模式
+        stateFlag = 1100;    //右贴墙模式
         break;
       }
       else {
-        stateFlag = 0100;   //右贴墙模式
+        stateFlag = 0100;   //左贴墙模式
         break;
       }
     case 0100:                           //左贴墙壁模式，仅做state判断
@@ -60,50 +85,117 @@ void modeLoop() {
         break;
       }
     case 0110:
-      Motion::turnRight(turnRightPWM,0,false,1);
+      Motion::turnRight(turnRightPWM, 0, false, 1);
       stateFlag = 0100;
       break;
+    //    case 0120:
+    //      Motion::forward(forwardPWM);
+    //      keepForwardTime = millis() + 1000;
+    //      stateFlag = 0121;
+    //      break;
+    //    case 0121:
+    //      if (left || mid || right) {
+    //        Motion::motionStop();
+    //        stateFlag = 0100;
+    //        break;
+    //      }
+    //      else {
+    //        if (millis() <= keepForwardTime) {
+    //          break;
+    //        }
+    //        else {
+    //          Gyroscope::update();
+    //          startLeftAngle = Gyroscope::getAngleZ();
+    //          Motion::turnLeft(turnLeftPWM);
+    //          stateFlag = 0122;
+    //          break;
+    //        }
+    //      }
+    //    case 0122:
+    //      if (left || mid || right) {
+    //        Motion::motionStop();
+    //        stateFlag = 0100;
+    //        break;
+    //      }
+    //      else {
+    //        Gyroscope::update();
+    //        leftAngle = Gyroscope::getAngleZ() - startLeftAngle;
+    //        leftAngle += leftAngle < -20 ? 360 : 0;
+    //        Serial.println(leftAngle);
+    //        if (leftAngle <= 120) {
+    //          break;
+    //        }
+    //        else {
+    //          stateFlag = 0000;
+    ////          Serial.println("lose wall");
+    //          break;
+    //        }
+    //      }
     case 0120:
-      Motion::forward(forwardPWM);
-      keepForwardTime = millis() + 1000;
-      stateFlag = 0121;
+      leftDistance0 = Ultrasonic::getDistance(0);
+      if (leftDistance0 == -1) {
+        Serial.println("error:unable to get distance");
+      }
+      else if (leftDistance0 == 0||leftDistance0>200) {
+        Gyroscope::update();
+        startLeftAngle = Gyroscope::getAngleZ();
+        //        Motion::turnForward(120, 180);
+        Motion::turnLeft(turnLeftPWM);
+        stateFlag = 0122;
+        break;
+      }
+      else {
+        if (Motion::motionState != 5) {
+          Motion::forward(forwardPWM);
+          leftPWM = 150;
+          rightPWM = 150;
+        }
+        else {
+          Motion::turnForward(leftPWM, rightPWM);
+        }
+        keepForwardTime = millis() + PIDInterval;
+        stateFlag = 0121;
+        break;
+      }
       break;
     case 0121:
-      if (left || mid || right) {
-        Motion::motionStop();
+      if (millis() < keepForwardTime) break;
+      else {
+        leftDistance1 = Ultrasonic::getDistance(0);
+        deltaPWM = KP * (TD * ((leftDistance1 - leftDistance0) * 1000 / PIDInterval) + TI * (leftDistance1 - 100));
+        deltaPWM = constrain(deltaPWM, -100, 100);
+        leftPWM = 150 - deltaPWM / 2;
+        rightPWM = 150 + deltaPWM / 2;
+        Serial.print("leftPWM:");
+        Serial.println(leftPWM);
+        Serial.print("rightPWM:");
+        Serial.println(rightPWM);
+        Motion::turnForward(leftPWM, rightPWM);
         stateFlag = 0100;
         break;
-      }
-      else {
-        if (millis() <= keepForwardTime) {
-          break;
-        }
-        else {
-          Gyroscope::update();
-          startLeftAngle = Gyroscope::getAngleZ();
-          Motion::turnLeft(turnLeftPWM);
-          stateFlag = 0122;
-          break;
-        }
       }
     case 0122:
-      if (left || mid || right) {
-        Motion::motionStop();
-        stateFlag = 0100;
+      if (Ultrasonic::getDistance > 0) {
+        stateFlag = 0120;
         break;
       }
       else {
-        Gyroscope::update();
-        leftAngle = Gyroscope::getAngleZ() - startLeftAngle;
-        leftAngle += leftAngle < -20 ? 360 : 0;
-        Serial.println(leftAngle);
-        if (leftAngle <= 120) {
+        if (left || mid || right) {
+          stateFlag = 0100;
           break;
         }
         else {
-          stateFlag = 0000;
-//          Serial.println("lose wall");
-          break;
+          leftAngle = Gyroscope::getAngleZ() - startLeftAngle;
+          leftAngle += leftAngle < -20 ? 360 : 0;
+          if (leftAngle < 180)
+          {
+            break;
+          }
+          else {
+            Serial.println("lose wall");
+            stateFlag = 0000;
+            break;
+          }
         }
       }
     case 0130:
