@@ -90,8 +90,30 @@ void modeLoop() {
       }
     case 0110:
       Motion::turnRight(turnRightPWM, 0, false, 1);
-      stateFlag = 0100;
-      break;
+      if (left && !right) {
+        break;
+      }
+      else if (!(left || mid || right)) {
+        keepRightTime = millis() + 200;
+        stateFlag = 0111;
+        break;
+      }
+      else {
+        stateFlag = 0100;
+        break;
+      }
+    case 0111:
+      if (millis() > keepRightTime) {
+        stateFlag = 0100;
+        break;
+      }
+      else if (!(left || mid || right)) {
+        break;
+      }
+      else {
+        stateFlag = 0100;
+        break;
+      }
     case 0120:
       leftDistance0 = Ultrasonic::getDistance(0);
       if (leftDistance0 == -1) {
@@ -221,8 +243,30 @@ void modeLoop() {
       }
     case 1110:
       Motion::turnLeft(turnLeftPWM, 0, false, 1);
-      stateFlag = 1100;
-      break;
+      if (!left && right) {
+        break;
+      }
+      else if (!(left || mid || right)) {
+        keepLeftTime = millis() + 200;
+        stateFlag = 1111;
+        break;
+      }
+      else {
+        stateFlag = 1100;
+        break;
+      }
+    case 1111:
+      if (millis() > keepLeftTime) {
+        stateFlag = 1100;
+        break;
+      }
+      else if (!(left || mid || right)) {
+        break;
+      }
+      else {
+        stateFlag = 1100;
+        break;
+      }
     case 1120:
       rightDistance0 = Ultrasonic::getDistance(1);
       if (rightDistance0 == -1) {
