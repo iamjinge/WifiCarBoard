@@ -9,7 +9,7 @@ unsigned long leftTime0 = 0;
 //unsigned long leftTime1 = 0;
 unsigned long rightTime0 = 0;
 //unsigned long rightTime1 = 0;
-float maxDistance = 500;  //mm
+float maxDistance = 2000;  //mm
 float distance = 0;
 int waitForEchoTime=500;  //ms 设置过小可能无法正常工作
 

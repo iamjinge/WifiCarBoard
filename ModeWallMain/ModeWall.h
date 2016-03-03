@@ -33,8 +33,8 @@ int leftPWM = 150;
 int rightPWM = 150;
 int deltaPWM = 0;
 
-int PIDInterval = 200; //ms
-const float KP = 2, TD = 2, TI = 10;
+int PIDInterval = 100; //ms
+const float KP = 2, TD = 10, TI = 10;
 
 void modeSetup() {
   pinMode(detectLeft, INPUT);
@@ -43,7 +43,8 @@ void modeSetup() {
 }
 
 void modeLoop() {
-  Serial.println(stateFlag);
+  Serial.print(stateFlag);
+  Serial.println("");
   mid = !digitalRead(detectMid);
   left = !digitalRead(detectLeft);
   right = !digitalRead(detectRight);
@@ -157,10 +158,10 @@ void modeLoop() {
         deltaPWM = constrain(deltaPWM, -180, 180);          //TODO PWM调节区间
         leftPWM = 150 - deltaPWM / 2;
         rightPWM = 150 + deltaPWM / 2;
-        Serial.print("leftPWM:");
-        Serial.println(leftPWM);
-        Serial.print("rightPWM:");
-        Serial.println(rightPWM);
+//        Serial.print("leftPWM:");
+//        Serial.println(leftPWM);
+//        Serial.print("rightPWM:");
+//        Serial.println(rightPWM);
         Motion::turnForward(leftPWM, rightPWM);
         stateFlag = 0100;
         break;
@@ -191,7 +192,7 @@ void modeLoop() {
       }
     case 0130:
       Motion::backward(backwardPWM);
-      keepBackTime = millis() + 1000;
+      keepBackTime = millis() + 300;
       stateFlag = 0131;
       break;
     case 0131:
@@ -216,7 +217,7 @@ void modeLoop() {
         Gyroscope::update();
         rightAngle = startRightAngle - Gyroscope::getAngleZ() ;
         rightAngle += rightAngle < -20 ? 360 : 0;
-        if (rightAngle <= 15) {
+        if (rightAngle <= 20) {
           break;
         }
         else {
@@ -309,10 +310,10 @@ void modeLoop() {
         deltaPWM = constrain(deltaPWM, -180, 180);          //TODO PWM调节区间
         leftPWM = 150 + deltaPWM / 2;
         rightPWM = 150 - deltaPWM / 2;
-        Serial.print("leftPWM:");
-        Serial.println(leftPWM);
-        Serial.print("rightPWM:");
-        Serial.println(rightPWM);
+//        Serial.print("leftPWM:");
+//        Serial.println(leftPWM);
+//        Serial.print("rightPWM:");
+//        Serial.println(rightPWM);
         Motion::turnForward(leftPWM, rightPWM);
         stateFlag = 1100;
         break;
@@ -343,7 +344,7 @@ void modeLoop() {
       }
     case 1130:
       Motion::backward(backwardPWM);
-      keepBackTime = millis() + 1000;
+      keepBackTime = millis() + 300;
       stateFlag = 1131;
       break;
     case 1131:
@@ -368,7 +369,7 @@ void modeLoop() {
         Gyroscope::update();
         leftAngle = Gyroscope::getAngleZ() - startLeftAngle;
         leftAngle += leftAngle < -20 ? 360 : 0;
-        if (leftAngle <= 15) {
+        if (leftAngle <= 20) {
           break;
         }
         else {
