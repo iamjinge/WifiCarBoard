@@ -1,32 +1,50 @@
 #include "SocketCtrl.h"
-#include "Motor.h"
+#include "BackToAim.h"
+#include "ModeFree.h"
+#include "ModeWall.h"
 
 void setup() {
   // put your setup code here, to run once:
   SocketCtrl::setup();
   Motor::setup();
-  DataCenter::mode = 4;
+  DataCenter::mode = 0;
+
+  BackToAim::setup();
+  Gyroscope::setup();
+  
+  ModeFree::modeSetup();
+  
+  ModeWall::modeSetup();
+  Ultrasonic::setup();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   while (!DataCenter::flagModeChange) {
-    Motor::loop();
     SocketCtrl::getInput();
 
     switch (DataCenter::mode) {
-      // free mode
-      case 1: {
+      // Manual mode
+      case 0: {
           break;
         }
+      // free mode
+      case 1: {
+          ModeFree::modeLoop();
+          break;
+        }
+      // wall mode
       case 2: {
+          ModeWall::modeLoop();
           break;
         }
       // back to aim
-      case 4: {
+      case 3: {
+          BackToAim::loop();
           break;
         }
     };
-    DataCenter::flagModeChange = false;
   }
+  Motor::motorSpeed(0,0);
+  DataCenter::flagModeChange = false;
 }

@@ -1,3 +1,4 @@
+#define FILE_MOTOR
 #include "Arduino.h"
 #ifndef FILE_DataCenter
 #include "DataCenter.h"
@@ -12,7 +13,7 @@ int L_Neg = 4;   // L293驱动板（L-）
 int R_Pos = 3;   // L293驱动板（R+）
 int R_Neg = 2;   // L293驱动板（R-）
 
-void changeState(int, int);
+void motorSpeed(int, int);
 
 void setup() {
   pinMode(L_Pos, OUTPUT);
@@ -32,12 +33,12 @@ void setup() {
 
 void loop() {
     if (DataCenter::flagMotorChange){
-        changeState(DataCenter::motorLeft, DataCenter::motorRight);
+        motorSpeed(DataCenter::motorLeft, DataCenter::motorRight);
         DataCenter::flagMotorChange = false;
     }
 }
 
-void changeState(int leftPwm, int rightPwm) {
+void motorSpeed(int leftPwm, int rightPwm) {
   if (leftPwm > 0) {
     analogWrite(L_Pos, leftPwm);
     analogWrite(L_Neg, 0);

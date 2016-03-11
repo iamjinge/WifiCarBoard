@@ -4,7 +4,7 @@ namespace Gyroscope {
 byte gyroData[11];
 float a[3], w[3], angle[3], T;   //xyz轴的加速度,角速度和角度;温度
 bool update();
-void gyroscopeSetup() {
+void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
   Serial1.setTimeout(100);

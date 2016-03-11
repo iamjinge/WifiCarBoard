@@ -1,5 +1,7 @@
+#define FILE_SOCKET_CTRL
 #include "Arduino.h"
 #include "DataCenter.h"
+#include "Motor.h"
 
 namespace SocketCtrl {
 int CODE_LENGTH = 8;
@@ -19,6 +21,12 @@ byte output[8];
 void sendOutput();
 void getAim();
 bool handleInput(byte*);
+
+void testGetAim(){
+    DataCenter::aimDistance = 40;
+    DataCenter::aimAngle = 20;
+    Serial.println("test to get aim");
+}
 
 void setup() {
   Serial3.begin(9600);
@@ -54,12 +62,10 @@ bool handleInput(byte* input) {
     switch (input[1]) {
       case CODE_MOTOR: {
           int left = 2 * input[2];
-          if (input[1] > 0x7f)  left = 2 * (input[2] - 0xff);
+          if (input[2] > 0x7f)  left = 2 * (input[2] - 0xff);
           int right = 2 * input[3];
           if (input[2] > 0x7f)  right = 2 * (input[3] - 0xff);
-          DataCenter::motorLeft = left;
-          DataCenter::motorRight = right;
-          DataCenter::flagMotorChange = true;
+          Motor::motorSpeed(left, right);
           break;
         }
       case CODE_GET_AIM: {
