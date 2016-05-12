@@ -1,3 +1,4 @@
+#define FILE_GYROSCOPE
 #include "Arduino.h"
 
 namespace Gyroscope {

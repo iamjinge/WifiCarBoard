@@ -15,7 +15,7 @@ void setup() {
   ModeFree::modeSetup();
   
   ModeWall::modeSetup();
-  Ultrasonic::setup();
+  Ultrasonic::ultrasonicSetup();
 }
 
 void loop() {

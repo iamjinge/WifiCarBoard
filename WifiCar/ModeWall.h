@@ -1,6 +1,10 @@
 #include "Arduino.h"
+#ifndef FILE_MOTION
 #include"Motion.h"
+#endif
+#ifndef FILE_GYROSCOPE
 #include "Gyroscope.h"
+#endif
 #include "Ultrasonic.h"
 
 namespace ModeWall {

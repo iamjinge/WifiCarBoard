@@ -1,7 +1,9 @@
 #ifndef FILE_DataCenter
 #include "DataCenter.h"
 #endif
+#ifndef FILE_GYROSCOPE
 #include "Gyroscope.h"
+#endif
 #ifndef FILE_SOCKET_CTRL
 #include "SocketCtrl.h"
 #endif

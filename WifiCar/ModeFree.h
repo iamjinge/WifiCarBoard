@@ -1,5 +1,7 @@
 #include "Arduino.h"
+#ifndef FILE_MOTION
 #include"Motion.h"
+#endif
 
 namespace ModeFree {
 int detectLeft = 22;    //左侧红外避障模块检测
